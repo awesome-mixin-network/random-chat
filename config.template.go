@@ -16,3 +16,24 @@ const (
 xxx
 -----END RSA PRIVATE KEY-----`
 )
+
+type DatabaseConfig struct {
+	HostWrite    string
+	HostRead     string
+	DatabaseName string
+	Username     string
+	Password     string
+
+	ReadLogFile  string
+	WriteLogFile string
+}
+
+var Database = &DatabaseConfig{
+	HostWrite:    "localhost:3306",
+	HostRead:     "localhost:3306",
+	DatabaseName: "random_chat",
+	Username:     "charlie",
+	Password:     "",
+	ReadLogFile:  "db_read.log",
+	WriteLogFile: "db_write.log",
+}
