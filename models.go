@@ -107,15 +107,16 @@ func (e *engine) enableUser(ctx context.Context, user *User, enable bool) error 
 	}
 
 	tx := e.dbWrite.Begin()
-	if err := tx.Model(user).Updates(map[string]interface{}{
+	paras := map[string]interface{}{
 		"enabled":     false,
 		"opponent_id": "",
-	}).Error; err != nil {
+	}
+	if err := tx.Model(user).Updates(paras).Error; err != nil {
 		return err
 	}
 
 	if opponent != nil {
-		if err := tx.Model(opponent).Update("enabled", false).Error; err != nil {
+		if err := tx.Model(opponent).Updates(paras).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
