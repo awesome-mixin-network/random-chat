@@ -15,25 +15,19 @@ const (
 	SessionKey = `-----BEGIN RSA PRIVATE KEY-----
 xxx
 -----END RSA PRIVATE KEY-----`
+
+	// HostWrite HostWrite
+	HostWrite = "localhost:3306"
+	// HostRead HostRead
+	HostRead = "localhost:3306"
+	// DatabaseName DatabaseName
+	DatabaseName = "random_chat"
+	// Username Username
+	Username = "root"
+	// Password Password
+	Password = ""
+	// ReadLogFile ReadLogFile
+	ReadLogFile = "db_read.log"
+	// WriteLogFile WriteLogFile
+	WriteLogFile = "db_write.log"
 )
-
-type DatabaseConfig struct {
-	HostWrite    string
-	HostRead     string
-	DatabaseName string
-	Username     string
-	Password     string
-
-	ReadLogFile  string
-	WriteLogFile string
-}
-
-var Database = &DatabaseConfig{
-	HostWrite:    "localhost:3306",
-	HostRead:     "localhost:3306",
-	DatabaseName: "random_chat",
-	Username:     "charlie",
-	Password:     "",
-	ReadLogFile:  "db_read.log",
-	WriteLogFile: "db_write.log",
-}

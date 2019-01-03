@@ -58,6 +58,14 @@ func (e *engine) OnMessage(ctx context.Context, msgView messenger.MessageView, u
 		}
 	}
 
+	if len(user.OpponentID) == 0 {
+		msg := `/start to start;
+/stop to stop;
+/change to seek a new mate;
+/name XXX to name your self;`
+		return e.Send(ctx, user.UserID, msg)
+	}
+
 	if err := e.matchUser(ctx, user); err != nil {
 		return err
 	}

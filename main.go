@@ -55,10 +55,8 @@ func main() {
 
 	m := messenger.NewMessenger(user)
 
-	dbRead := createDb(Database.HostRead, Database.Username, Database.Password,
-		Database.DatabaseName, Database.ReadLogFile)
-	dbWrite := createDb(Database.HostWrite, Database.Username, Database.Password,
-		Database.DatabaseName, Database.WriteLogFile)
+	dbRead := createDb(HostRead, Username, Password, DatabaseName, ReadLogFile)
+	dbWrite := createDb(HostWrite, Username, Password, DatabaseName, WriteLogFile)
 
 	dbWrite.AutoMigrate(User{})
 

@@ -10,6 +10,11 @@ type User struct {
 	Enabled    bool   `gorm:"DEFAULT:1;" json:"enabled"`
 }
 
+// TableName mysql table name
+func (User) TableName() string {
+	return "users"
+}
+
 func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string) error {
 	if len(user.OpponentID) > 0 {
 		return nil
@@ -23,7 +28,7 @@ func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string
 
 	var opponent *User
 	for id, u := range e.users {
-		if len(u.OpponentID) > 0 {
+		if len(u.OpponentID) > 0 || !u.Enabled {
 			continue
 		}
 		if _, found := ignored[id]; found {
@@ -46,6 +51,7 @@ func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string
 
 	tx := e.dbWrite.Begin()
 	paras := map[string]interface{}{
+		"enabled":     true,
 		"opponent_id": opponent.UserID,
 	}
 	if err := tx.Model(user).Updates(paras).Error; err != nil {
@@ -62,19 +68,19 @@ func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string
 		return err
 	}
 
-	fullname := opponent.FullName
+	fullname := user.FullName
 	if len(fullname) == 0 {
 		fullname = "User"
 	}
-	if err := e.Send(ctx, opponent.UserID, "User join your random conversation!"); err != nil {
+	if err := e.Send(ctx, opponent.UserID, fullname+" join your random conversation!"); err != nil {
 		return err
 	}
 
-	fullname = user.FullName
+	fullname = opponent.FullName
 	if len(fullname) == 0 {
 		fullname = "User"
 	}
-	return e.Send(ctx, user.UserID, "User join your random conversation!")
+	return e.Send(ctx, user.UserID, fullname+" join your random conversation!")
 }
 
 func (e *engine) fetchUser(ctx context.Context, userID string) (*User, error) {
@@ -139,7 +145,19 @@ func (e *engine) enableUser(ctx context.Context, user *User, enable bool) error 
 }
 
 func (e *engine) chageFullName(ctx context.Context, user *User, fullname string) error {
-	return e.dbWrite.Model(user).Update("full_name", fullname).Error
+	preName := user.FullName
+	if len(preName) == 0 {
+		preName = "User"
+	}
+	if err := e.dbWrite.Model(user).Update("full_name", fullname).Error; err != nil {
+		return err
+	}
+
+	if len(user.OpponentID) == 0 {
+		return nil
+	}
+
+	return e.Send(ctx, user.OpponentID, preName+" updates name: "+fullname)
 }
 
 func (e *engine) changeOpponent(ctx context.Context, user *User) error {
