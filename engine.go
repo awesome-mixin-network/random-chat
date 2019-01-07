@@ -66,17 +66,8 @@ func (e *engine) OnMessage(ctx context.Context, msgView messenger.MessageView, u
 		return e.Send(ctx, user.UserID, msg)
 	}
 
-	if err := e.matchUser(ctx, user); err != nil {
-		return err
-	}
-
-	opponentID := user.OpponentID
-	if len(opponentID) == 0 {
-		return e.Send(ctx, user.UserID, "No user matched, please try later")
-	}
-
-	msgView.ConversationId = utils.UniqueConversationId(ClientID, opponentID)
-	return e.SendMessage(ctx, msgView.ConversationId, opponentID, msgView.Category, string(data), "")
+	msgView.ConversationId = utils.UniqueConversationID(ClientID, user.OpponentID)
+	return e.SendMessage(ctx, msgView.ConversationId, user.OpponentID, msgView.Category, string(data), "")
 }
 
 func (e *engine) Run(ctx context.Context) {
@@ -90,7 +81,7 @@ func (e *engine) Run(ctx context.Context) {
 
 func (e *engine) Send(ctx context.Context, userID, content string) error {
 	msgView := messenger.MessageView{
-		ConversationId: utils.UniqueConversationId(ClientID, userID),
+		ConversationId: utils.UniqueConversationID(ClientID, userID),
 		UserId:         userID,
 	}
 	return e.SendPlainText(ctx, msgView, content)

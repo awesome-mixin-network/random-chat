@@ -20,8 +20,8 @@ func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string
 		return nil
 	}
 
-	ignored := make(map[string]bool, len(ignoredIDs)+1)
-	ignored[user.UserID] = true
+	ignoredIDs = append(ignoredIDs, user.UserID)
+	ignored := make(map[string]bool, len(ignoredIDs))
 	for _, id := range ignoredIDs {
 		ignored[id] = true
 	}
@@ -39,8 +39,8 @@ func (e *engine) matchUser(ctx context.Context, user *User, ignoredIDs ...string
 
 	if opponent == nil {
 		var u User
-		if db := e.dbRead.Where("user_id != ?", user.UserID).Where("enabled = ?", true).
-			Where("opponent_id != ''").First(&u); db.Error != nil {
+		if db := e.dbRead.Where("user_id NOT IN (?)", ignoredIDs).Where("enabled = ?", true).
+			Where("opponent_id = ''").First(&u); db.Error != nil {
 			if db.RecordNotFound() {
 				return nil
 			}
